@@ -43,6 +43,56 @@
     <div id="ss"></div>
     <script>
 window.onload = function() {
+    // use images or canvas dom objects?
+    var doCanvas = new URLSearchParams(window.location.search).has('canvas') || false;
+
+    // Free List implementation
+    var freeImages = [];
+    function freeImage(image) {
+       freeImages.push(image); 
+    }
+    // Make an image or a canvas
+    var _canvasMaker = function() { return document.createElement('canvas'); };
+    var _imageMaker = function() { return new Image(); };
+    // Try to use freeLists to prevent excessive allocation of new images
+    function makeImage() {
+        if (freeImages.length > 0) {
+	   return freeImages.shift();
+        } else {
+           return _imageMaker();
+        }
+    };
+    // Add an image and then remove one if there are too many
+    function addImageToContainer(img) {
+        ssContainer.appendChild(img);
+        while (ssContainer.childNodes.length >  256) {
+            var child = ssContainer.firstChild;
+            ssContainer.removeChild( child );
+            freeImage( child );
+        }
+    };
+    // Makes a new image dom object with a data uri of what the video showed
+    function copyCanvasToImg(ctx,img,videoWidth,videoHeight) {
+            // (c) 2014 Pete Lapage (Apache 2.0 License)
+            ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
+            img.src = canvas.toDataURL("image/png");
+            img.width = 640/5;
+            img.height = 640/5;
+            img.class = "frame";
+            img.onload = function() {
+                addImageToContainer(img);
+            };
+    };  
+    // copies the Video frame to a canvas object's bitmap
+    function copyVideoToCanvas(canvas,videoWidth,videoHeight) {
+            // (c) 2014 Pete Lapage (Apache 2.0 License)
+            canvas.width = 640/5;
+            canvas.height = 640/5;
+            canvas.class = "frame";
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
+            addImageToContainer(canvas);
+    }   
     try {
         var canvas = document.createElement('canvas');
         var ssContainer = document.getElementById("ss");
@@ -52,22 +102,22 @@ window.onload = function() {
         var videoHeight = 480;
         // (c) 2014 Pete Lapage (Apache 2.0 License)
         var grabScreenshot = function() {
-            ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
-            var img = new Image();
-            img.src = canvas.toDataURL("image/png");
-            img.width = 640/10;
-            img.class = "frame";
-            img.onload = function() {
-                ssContainer.appendChild(img);
-                while (ssContainer.childNodes.length >  256) {
-                    ssContainer.removeChild(ssContainer.firstChild);
-                }
-            }
+            var img = makeImage();
+            copyCanvasToImg(ctx,img,videoWidth,videoHeight);
         }
-        
-        video.oncanplay = function() {
-            window.setInterval( grabScreenshot, 1000/30.0);
-        };
+        // change functionality if doCanvas is set
+        if (doCanvas) {
+            // only make canvases
+            _imageMaker = _canvasMaker;
+            grabScreenshot = function() {
+                var img = makeImage();
+                copyVideoToCanvas(img,videoWidth,videoHeight);
+            };
+        }
+        //video.onplay = function() {
+        //    window.setInterval( grabScreenshot, 1000/30.0);
+        //};
+        window.setInterval( grabScreenshot, 1000/30.0);
     } catch (e) {
         console.log(e)
     }

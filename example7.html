@@ -7,11 +7,11 @@
   <style>
     #basicmovie {
         position: fixed;
-        clip: rect( 0px, 100px, 80px, 0px );
+        /* clip: rect( 0px, 100px, 80px, 0px ); */
         transition: clip 2s;
     }
     #basicmovie:hover {
-        clip: rect( 400px, 500px, 580px, 300px );
+        /* clip: rect( 400px, 500px, 580px, 300px ); */
     }
     .frame {
         margin: 0px;
@@ -118,6 +118,11 @@ window.onload = function() {
         //    window.setInterval( grabScreenshot, 1000/30.0);
         //};
         window.setInterval( grabScreenshot, 1000/30.0);
+        function jumpTime() {
+            video.currentTime = 22 * Math.random();
+        }
+        // evaluate this to randomly jump around in video!
+        // window.setInterval( jumpTime, 2000);
     } catch (e) {
         console.log(e)
     }

@@ -63,10 +63,10 @@
               function mkListener(i) { 
                   return function() { 
                       console.log(i); 
-                      //videos[i].style.opacity = 1.0; 
-                      //videos[i].rotation = (1 + (videos[i].rotation || 0.0)) % 360;
+                      videos[i].style.opacity = 1.0; 
+                      videos[i].rotation = (1 + (videos[i].rotation || 0.0)) % 360;
                       videos[i].volume = 1.0;
-                      //videos[i].style.transform="rotate("+videos[i].rotation+"deg)";
+                      videos[i].style.transform="rotate("+videos[i].rotation+"deg)";
                   };
               };
               for (var i = 0; i < buttons.length; i++) {
@@ -74,7 +74,7 @@
               }
               window.setInterval(function() {
                   for (var i = 0; i < videos.length; i++) {
-                      //videos[i].style.opacity = (videos[i].style.opacity===undefined)?1:videos[i].style.opacity*0.98
+                      videos[i].style.opacity = (videos[i].style.opacity===undefined)?1:videos[i].style.opacity*0.98
                       videos[i].volume = 0.98 * videos[i].volume;
                   }
               }, 100);
